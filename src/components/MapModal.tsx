@@ -68,7 +68,7 @@ export function MapModal({ place, open, onClose, onRefresh }: MapModalProps) {
           href={navUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700"
+          className="flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-3 font-medium text-white hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-700"
         >
           <span>ナビ開始</span>
           <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

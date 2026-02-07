@@ -69,23 +69,51 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <main className="mx-auto max-w-lg px-4 py-6">
-        <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-          Quick Toilet
-        </h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          近くのトイレを表示しています。タップで地図とナビを開きます。
-        </p>
-        <div className="mt-6">
-          <ToiletList
-            places={places}
-            onSelectPlace={handleSelectPlace}
-            loading={loading}
-            error={error}
-          />
+    <div className="min-h-screen bg-[var(--bg-off-white)] dark:bg-zinc-950 pb-24">
+      <header className="sticky top-0 z-10 border-b border-slate-100 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-zinc-900/80">
+        <div className="mx-auto flex max-w-md items-center gap-2 px-5 py-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500 shadow-sm dark:bg-sky-600">
+            <svg className="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+            </svg>
+          </div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-800 dark:text-slate-100">
+            QT
+          </h1>
         </div>
+      </header>
+
+      <main className="mx-auto max-w-md px-5 py-6">
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+            近くのトイレ
+          </h2>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            カードをタップすると地図とナビを開きます。
+          </p>
+        </div>
+        <ToiletList
+          places={places}
+          onSelectPlace={handleSelectPlace}
+          loading={loading}
+          error={error}
+        />
       </main>
+
+      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-[var(--bg-off-white)] via-[var(--bg-off-white)] to-transparent pt-6 pb-5 pointer-events-none dark:from-zinc-950 dark:via-zinc-950 dark:to-transparent">
+        <div className="pointer-events-auto mx-auto max-w-md px-5">
+          <button
+            type="button"
+            onClick={handleRefresh}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-sky-500 py-4 font-bold text-white shadow-lg shadow-sky-200 transition-all hover:bg-sky-600 active:scale-[0.97] dark:bg-sky-600 dark:shadow-sky-900/30"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            リストを更新
+          </button>
+        </div>
+      </div>
 
       <MapModal
         place={selectedPlace}
