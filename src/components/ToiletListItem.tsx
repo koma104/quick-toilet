@@ -41,7 +41,21 @@ export function ToiletListItem({ place, onSelect }: ToiletListItemProps) {
         <span className="min-w-0 truncate text-sm">{address || "住所なし"}</span>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
-        {/* タグ表示エリア（APIで取得できる情報があれば後で表示） */}
+        {place.is24h && (
+          <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+            24時間
+          </span>
+        )}
+        {place.wheelchairAccessibleEntrance && (
+          <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+            アクセシブル
+          </span>
+        )}
+        {place.goodForChildren && (
+          <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+            キッズ向け
+          </span>
+        )}
       </div>
     </button>
   );

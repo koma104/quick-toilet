@@ -3,6 +3,7 @@ import type { Place } from "@/types/place";
 
 const PLACES_API_NEARBY = "https://places.googleapis.com/v1/places:searchNearby";
 const PLACES_API_SEARCH_TEXT = "https://places.googleapis.com/v1/places:searchText";
+const PLACES_API_DETAILS = "https://places.googleapis.com/v1/places";
 
 function haversineDistance(
   lat1: number,
@@ -166,9 +167,80 @@ export async function GET(request: NextRequest) {
       if (!byId.has(p.id)) byId.set(p.id, p);
     }
 
-    const places = Array.from(byId.values())
+    let places = Array.from(byId.values())
       .sort((a, b) => (a.distance ?? 0) - (b.distance ?? 0))
       .slice(0, maxResults);
+
+    const detailsFieldMask = [
+      "regularOpeningHours",
+      "accessibilityOptions",
+      "goodForChildren",
+    ].join(",");
+
+    const top3 = places.slice(0, 3);
+    const detailsResults = await Promise.all(
+      top3.map((place) =>
+        fetch(
+          `${PLACES_API_DETAILS}/${encodeURIComponent(place.id)}?languageCode=ja`,
+          {
+            headers: {
+              "X-Goog-Api-Key": apiKey,
+              "X-Goog-FieldMask": detailsFieldMask,
+            },
+          }
+        )
+      )
+    );
+
+    type OpeningPeriod = {
+      open?: { day?: number; hour?: number; minute?: number };
+      close?: { day?: number; hour?: number; minute?: number };
+    };
+    type DetailsResponse = {
+      regularOpeningHours?: { periods?: OpeningPeriod[] };
+      accessibilityOptions?: {
+        wheelchairAccessibleEntrance?: string | boolean;
+      };
+      goodForChildren?: boolean;
+    };
+
+    function is24h(details: DetailsResponse): boolean {
+      const periods = details.regularOpeningHours?.periods;
+      if (!periods?.length) return false;
+      const has24hPeriod = periods.some(
+        (p) =>
+          p.open?.day === 0 &&
+          p.open?.hour === 0 &&
+          p.open?.minute === 0 &&
+          p.close == null
+      );
+      return has24hPeriod;
+    }
+
+    function isWheelchairAccessible(details: DetailsResponse): boolean {
+      const v = details.accessibilityOptions?.wheelchairAccessibleEntrance;
+      if (v === true || v === "TRUE") return true;
+      return false;
+    }
+
+    const detailsList = await Promise.all(
+      detailsResults.map(async (res) => {
+        if (!res.ok) return null;
+        return (await res.json()) as DetailsResponse;
+      })
+    );
+
+    places = places.map((p, i) => {
+      if (i >= 3) return p;
+      const details = detailsList[i];
+      if (!details) return p;
+      return {
+        ...p,
+        is24h: is24h(details),
+        wheelchairAccessibleEntrance: isWheelchairAccessible(details),
+        goodForChildren: details.goodForChildren === true,
+      };
+    });
 
     return NextResponse.json({ places });
   } catch (e) {
