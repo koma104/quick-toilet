@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { Place } from "@/types/place";
 
-const PLACES_API_URL = "https://places.googleapis.com/v1/places:searchNearby";
+const PLACES_API_NEARBY = "https://places.googleapis.com/v1/places:searchNearby";
+const PLACES_API_SEARCH_TEXT = "https://places.googleapis.com/v1/places:searchText";
 
 function haversineDistance(
   lat1: number,
@@ -34,7 +35,7 @@ export async function GET(request: NextRequest) {
   const lat = searchParams.get("lat");
   const lng = searchParams.get("lng");
   const radius = searchParams.get("radius") ?? "2000";
-  const maxResults = Math.min(Number(searchParams.get("max") ?? "10") || 10, 20);
+  const maxResults = Math.min(Number(searchParams.get("max") ?? "20") || 20, 20);
 
   if (!lat || !lng) {
     return NextResponse.json(
@@ -73,37 +74,19 @@ export async function GET(request: NextRequest) {
     "places.formattedAddress",
   ].join(",");
 
-  try {
-    const res = await fetch(PLACES_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Goog-Api-Key": apiKey,
-        "X-Goog-FieldMask": fieldMask,
-      },
-      body: JSON.stringify(body),
-    });
+  type RawPlace = {
+    id?: string;
+    displayName?: { text?: string };
+    location?: { latitude?: number; longitude?: number };
+    formattedAddress?: string;
+  };
 
-    if (!res.ok) {
-      const text = await res.text();
-      console.error("Places API error:", res.status, text);
-      return NextResponse.json(
-        { error: "Places API request failed", details: text },
-        { status: res.status === 400 ? 400 : 502 }
-      );
-    }
+  function normalizeId(id: string): string {
+    return id.startsWith("places/") ? id.slice(7) : id;
+  }
 
-    const data = (await res.json()) as {
-      places?: Array<{
-        id?: string;
-        displayName?: { text?: string };
-        location?: { latitude?: number; longitude?: number };
-        formattedAddress?: string;
-      }>;
-    };
-
-    const rawPlaces = data.places ?? [];
-    const places: Place[] = rawPlaces
+  function rawToPlace(list: RawPlace[]): Place[] {
+    return list
       .filter(
         (p) =>
           p.id &&
@@ -111,22 +94,79 @@ export async function GET(request: NextRequest) {
           p.location?.latitude != null &&
           p.location?.longitude != null
       )
-      .map((p) => {
-        const place: Place = {
-          id: p.id!,
-          displayName: p.displayName?.text ?? p.formattedAddress ?? "不明",
-          latitude: p.location!.latitude!,
-          longitude: p.location!.longitude!,
-          formattedAddress: p.formattedAddress,
-          distance: haversineDistance(
-            latitude,
-            longitude,
-            p.location!.latitude!,
-            p.location!.longitude!
-          ),
-        };
-        return place;
-      })
+      .map((p) => ({
+        id: normalizeId(p.id!),
+        displayName: p.displayName?.text ?? p.formattedAddress ?? "不明",
+        latitude: p.location!.latitude!,
+        longitude: p.location!.longitude!,
+        formattedAddress: p.formattedAddress,
+        distance: haversineDistance(
+          latitude,
+          longitude,
+          p.location!.latitude!,
+          p.location!.longitude!
+        ),
+      }));
+  }
+
+  try {
+    const [nearbyRes, textRes] = await Promise.all([
+      fetch(PLACES_API_NEARBY, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": apiKey,
+          "X-Goog-FieldMask": fieldMask,
+        },
+        body: JSON.stringify(body),
+      }),
+      fetch(PLACES_API_SEARCH_TEXT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": apiKey,
+          "X-Goog-FieldMask": fieldMask,
+        },
+        body: JSON.stringify({
+          textQuery: "公衆トイレ",
+          languageCode: "ja",
+          pageSize: 20,
+          rankPreference: "DISTANCE",
+          locationBias: {
+            circle: {
+              center: { latitude, longitude },
+              radius: radiusMeters,
+            },
+          },
+        }),
+      }),
+    ]);
+
+    if (!nearbyRes.ok) {
+      const text = await nearbyRes.text();
+      console.error("Places API searchNearby error:", nearbyRes.status, text);
+      return NextResponse.json(
+        { error: "Places API request failed", details: text },
+        { status: nearbyRes.status === 400 ? 400 : 502 }
+      );
+    }
+
+    const nearbyData = (await nearbyRes.json()) as { places?: RawPlace[] };
+    const nearbyPlaces = rawToPlace(nearbyData.places ?? []);
+
+    let textPlaces: Place[] = [];
+    if (textRes.ok) {
+      const textData = (await textRes.json()) as { places?: RawPlace[] };
+      textPlaces = rawToPlace(textData.places ?? []);
+    }
+
+    const byId = new Map<string, Place>();
+    for (const p of nearbyPlaces) byId.set(p.id, p);
+    for (const p of textPlaces) {
+      if (!byId.has(p.id)) byId.set(p.id, p);
+    }
+
+    const places = Array.from(byId.values())
       .sort((a, b) => (a.distance ?? 0) - (b.distance ?? 0))
       .slice(0, maxResults);
 

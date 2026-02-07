@@ -18,7 +18,7 @@ export default function Home() {
     setError(null);
     try {
       const res = await fetch(
-        `/api/nearby?lat=${lat}&lng=${lng}&radius=2000&max=10`
+        `/api/nearby?lat=${lat}&lng=${lng}&radius=2000&max=20`
       );
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "検索に失敗しました");
