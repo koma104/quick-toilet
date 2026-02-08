@@ -286,9 +286,6 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    const routesSuccessCount = walkingResults.filter((r) => r != null).length;
-    console.log(`[nearby] Routes API: ${routesSuccessCount}/3 walking routes`);
-
     places = places.map((p, i) => {
       let next = p;
       if (i < 3) {
