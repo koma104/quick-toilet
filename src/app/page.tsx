@@ -88,11 +88,8 @@ export default function Home() {
 
       <main className="w-full px-5 py-6 md:mx-auto md:max-w-md">
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
-            近くのトイレ
-          </h2>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            カードをタップすると地図とナビを開きます。
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            トイレを選ぶと地図とナビを開きます。
           </p>
         </div>
         <ToiletList
