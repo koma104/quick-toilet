@@ -42,17 +42,17 @@ export function ToiletListItem({ place, onSelect }: ToiletListItemProps) {
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         {place.is24h && (
-          <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+          <span className="rounded bg-slate-100 px-2 py-1 text-xs font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-700 dark:text-slate-400">
             24時間
           </span>
         )}
         {place.wheelchairAccessibleEntrance && (
-          <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+          <span className="rounded bg-slate-100 px-2 py-1 text-xs font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-700 dark:text-slate-400">
             アクセシブル
           </span>
         )}
         {place.goodForChildren && (
-          <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+          <span className="rounded bg-slate-100 px-2 py-1 text-xs font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-700 dark:text-slate-400">
             キッズ向け
           </span>
         )}

@@ -96,7 +96,7 @@ export function MapModal({ place, open, onClose }: MapModalProps) {
                     <svg className="h-5 w-5 text-sky-500 dark:text-sky-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
                       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                     </svg>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-zinc-500">距離</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-zinc-500">距離</span>
                   </div>
                   <p className="text-xl font-bold text-gray-900 dark:text-zinc-100">
                     {place.distance ?? 0}
@@ -108,7 +108,7 @@ export function MapModal({ place, open, onClose }: MapModalProps) {
                     <svg className="h-5 w-5 text-sky-500 dark:text-sky-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
                       <path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7" />
                     </svg>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-zinc-500">徒歩</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-zinc-500">徒歩</span>
                   </div>
                   <p className="text-xl font-bold text-gray-900 dark:text-zinc-100">
                     {walkMin}
@@ -118,20 +118,20 @@ export function MapModal({ place, open, onClose }: MapModalProps) {
               </div>
 
               <div>
-                <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-zinc-500">設備</p>
+                <p className="mb-3 text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-zinc-500">設備</p>
                 <div className="flex flex-wrap gap-2">
                   {place.is24h && (
-                    <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+                    <span className="rounded bg-slate-100 px-2 py-1 text-xs font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-700 dark:text-slate-400">
                       24時間
                     </span>
                   )}
                   {place.wheelchairAccessibleEntrance && (
-                    <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+                    <span className="rounded bg-slate-100 px-2 py-1 text-xs font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-700 dark:text-slate-400">
                       アクセシブル
                     </span>
                   )}
                   {place.goodForChildren && (
-                    <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+                    <span className="rounded bg-slate-100 px-2 py-1 text-xs font-bold uppercase tracking-wider text-slate-500 dark:bg-slate-700 dark:text-slate-400">
                       キッズ向け
                     </span>
                   )}
