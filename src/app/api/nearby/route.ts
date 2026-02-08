@@ -296,7 +296,14 @@ export async function GET(request: NextRequest) {
       return next;
     });
 
-    return NextResponse.json({ places });
+    return NextResponse.json(
+      { places },
+      {
+        headers: {
+          "Cache-Control": "no-store, max-age=0",
+        },
+      }
+    );
   } catch (e) {
     console.error("Nearby API error:", e);
     return NextResponse.json(

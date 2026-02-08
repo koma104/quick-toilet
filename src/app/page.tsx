@@ -45,7 +45,7 @@ export default function Home() {
         setError("現在地を取得できませんでした。位置情報の利用を許可してください。");
         setLoading(false);
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   }, [fetchNearby]);
 
