@@ -83,7 +83,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-md px-5 py-6">
+      <main className="w-full px-5 py-6 md:mx-auto md:max-w-md">
         <div className="mb-6">
           <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
             近くのトイレ
@@ -119,7 +119,6 @@ export default function Home() {
         place={selectedPlace}
         open={modalOpen}
         onClose={handleCloseModal}
-        onRefresh={handleRefresh}
       />
     </div>
   );
