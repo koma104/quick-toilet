@@ -11,19 +11,18 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   const fetchNearby = useCallback(async (lat: number, lng: number) => {
     setLoading(true);
     setError(null);
     try {
       const res = await fetch(
-        `/api/nearby?lat=${lat}&lng=${lng}&radius=2000&max=20`
+        `/api/nearby?lat=${lat}&lng=${lng}&radius=2000&max=20`,
+        { cache: "no-store" }
       );
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "検索に失敗しました");
       setPlaces(data.places ?? []);
-      setUserLocation({ lat, lng });
     } catch (e) {
       setError(e instanceof Error ? e.message : "エラーが発生しました");
       setPlaces([]);
@@ -61,11 +60,25 @@ export default function Home() {
   };
 
   const handleRefresh = () => {
-    if (userLocation) {
-      setModalOpen(false);
-      setSelectedPlace(null);
-      fetchNearby(userLocation.lat, userLocation.lng);
+    setModalOpen(false);
+    setSelectedPlace(null);
+    setLoading(true);
+    setError(null);
+    if (!navigator.geolocation) {
+      setError("お使いのブラウザは位置情報に対応していません。");
+      setLoading(false);
+      return;
     }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        fetchNearby(pos.coords.latitude, pos.coords.longitude);
+      },
+      () => {
+        setError("現在地を取得できませんでした。位置情報の利用を許可してください。");
+        setLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   };
 
   return (
