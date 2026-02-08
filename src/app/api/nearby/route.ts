@@ -4,8 +4,18 @@ import type { Place } from "@/types/place";
 const PLACES_API_NEARBY = "https://places.googleapis.com/v1/places:searchNearby";
 const PLACES_API_SEARCH_TEXT = "https://places.googleapis.com/v1/places:searchText";
 const PLACES_API_DETAILS = "https://places.googleapis.com/v1/places";
-const DIRECTIONS_API =
-  "https://maps.googleapis.com/maps/api/directions/json";
+const ROUTES_API =
+  "https://routes.googleapis.com/directions/v2:computeRoutes";
+
+function parseDurationSeconds(duration: string): number | null {
+  const match = duration.match(/^(\d+)(?:\.(\d+))?s$/);
+  if (!match) return null;
+  const sec = parseInt(match[1], 10);
+  const frac = match[2]
+    ? parseInt(match[2].slice(0, 3).padEnd(3, "0"), 10) / 1000
+    : 0;
+  return sec + frac;
+}
 
 function haversineDistance(
   lat1: number,
@@ -232,45 +242,52 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    // 上位3件について Directions API で徒歩距離・所要時間を取得
+    // 上位3件について Routes API で徒歩距離・所要時間を取得（マップアプリに近い結果になりやすい）
     type WalkingResult = {
       walkingDistanceMeters: number;
       walkingDurationMinutes: number;
     } | null;
-    const directionsParams = new URLSearchParams({
-      mode: "walking",
-      key: apiKey,
-    });
     const walkingResults = await Promise.all(
       top3.map((place) => {
-        // 目的地は place_id 指定で入口など案内地点に近づき、マップアプリの結果に揃える
-        const destination = `place_id:${place.id}`;
-        const url = `${DIRECTIONS_API}?${directionsParams}&origin=${latitude},${longitude}&destination=${encodeURIComponent(destination)}`;
-        return fetch(url)
+        const body = {
+          origin: {
+            location: { latLng: { latitude, longitude } },
+          },
+          destination: { placeId: place.id },
+          travelMode: "WALK",
+        };
+        return fetch(ROUTES_API, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": apiKey,
+            "X-Goog-FieldMask": "routes.duration,routes.distanceMeters",
+          },
+          body: JSON.stringify(body),
+        })
           .then(async (res) => {
             if (!res.ok) return null;
             const data = (await res.json()) as {
-              status: string;
               routes?: Array<{
-                legs?: Array<{
-                  distance?: { value?: number };
-                  duration?: { value?: number };
-                }>;
+                distanceMeters?: number;
+                duration?: string;
               }>;
             };
-            if (data.status !== "OK" || !data.routes?.[0]?.legs?.[0]) return null;
-            const leg = data.routes[0].legs[0];
-            const dist = leg.distance?.value;
-            const durSec = leg.duration?.value;
-            if (dist == null || durSec == null) return null;
+            const route = data.routes?.[0];
+            if (!route?.distanceMeters || route.duration == null) return null;
+            const durSec = parseDurationSeconds(route.duration);
+            if (durSec == null) return null;
             return {
-              walkingDistanceMeters: dist,
+              walkingDistanceMeters: route.distanceMeters,
               walkingDurationMinutes: Math.max(1, Math.round(durSec / 60)),
             } as WalkingResult;
           })
           .catch(() => null);
       })
     );
+
+    const routesSuccessCount = walkingResults.filter((r) => r != null).length;
+    console.log(`[nearby] Routes API: ${routesSuccessCount}/3 walking routes`);
 
     places = places.map((p, i) => {
       let next = p;
