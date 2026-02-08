@@ -89,7 +89,7 @@ export default function Home() {
       <main className="w-full px-5 py-6 md:mx-auto md:max-w-md">
         <div className="mb-6">
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            トイレを選ぶと地図とナビを開きます。
+            近くのトイレを3件表示しています。トイレを選ぶと地図とナビを開きます。
           </p>
         </div>
         <ToiletList
