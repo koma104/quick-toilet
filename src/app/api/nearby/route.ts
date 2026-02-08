@@ -4,6 +4,8 @@ import type { Place } from "@/types/place";
 const PLACES_API_NEARBY = "https://places.googleapis.com/v1/places:searchNearby";
 const PLACES_API_SEARCH_TEXT = "https://places.googleapis.com/v1/places:searchText";
 const PLACES_API_DETAILS = "https://places.googleapis.com/v1/places";
+const DIRECTIONS_API =
+  "https://maps.googleapis.com/maps/api/directions/json";
 
 function haversineDistance(
   lat1: number,
@@ -230,16 +232,66 @@ export async function GET(request: NextRequest) {
       })
     );
 
+    // 上位3件について Directions API で徒歩距離・所要時間を取得
+    type WalkingResult = {
+      walkingDistanceMeters: number;
+      walkingDurationMinutes: number;
+    } | null;
+    const directionsParams = new URLSearchParams({
+      mode: "walking",
+      key: apiKey,
+    });
+    const walkingResults = await Promise.all(
+      top3.map((place) => {
+        const url = `${DIRECTIONS_API}?${directionsParams}&origin=${latitude},${longitude}&destination=${place.latitude},${place.longitude}`;
+        return fetch(url)
+          .then(async (res) => {
+            if (!res.ok) return null;
+            const data = (await res.json()) as {
+              status: string;
+              routes?: Array<{
+                legs?: Array<{
+                  distance?: { value?: number };
+                  duration?: { value?: number };
+                }>;
+              }>;
+            };
+            if (data.status !== "OK" || !data.routes?.[0]?.legs?.[0]) return null;
+            const leg = data.routes[0].legs[0];
+            const dist = leg.distance?.value;
+            const durSec = leg.duration?.value;
+            if (dist == null || durSec == null) return null;
+            return {
+              walkingDistanceMeters: dist,
+              walkingDurationMinutes: Math.max(1, Math.round(durSec / 60)),
+            } as WalkingResult;
+          })
+          .catch(() => null);
+      })
+    );
+
     places = places.map((p, i) => {
-      if (i >= 3) return p;
-      const details = detailsList[i];
-      if (!details) return p;
-      return {
-        ...p,
-        is24h: is24h(details),
-        wheelchairAccessibleEntrance: isWheelchairAccessible(details),
-        goodForChildren: details.goodForChildren === true,
-      };
+      let next = p;
+      if (i < 3) {
+        const details = detailsList[i];
+        if (details) {
+          next = {
+            ...next,
+            is24h: is24h(details),
+            wheelchairAccessibleEntrance: isWheelchairAccessible(details),
+            goodForChildren: details.goodForChildren === true,
+          };
+        }
+        const walking = walkingResults[i];
+        if (walking) {
+          next = {
+            ...next,
+            walkingDistanceMeters: walking.walkingDistanceMeters,
+            walkingDurationMinutes: walking.walkingDurationMinutes,
+          };
+        }
+      }
+      return next;
     });
 
     return NextResponse.json({ places });

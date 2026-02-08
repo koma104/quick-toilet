@@ -9,8 +9,10 @@ type ToiletListItemProps = {
 };
 
 export function ToiletListItem({ place, onSelect }: ToiletListItemProps) {
-  const distance = place.distance ?? 0;
-  const walkMin = walkingMinutes(distance);
+  const distance =
+    place.walkingDistanceMeters ?? place.distance ?? 0;
+  const walkMin =
+    place.walkingDurationMinutes ?? walkingMinutes(place.distance ?? 0);
   const address = shortAddress(place.formattedAddress);
 
   return (

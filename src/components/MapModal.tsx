@@ -44,7 +44,10 @@ export function MapModal({ place, open, onClose }: MapModalProps) {
 
   if (!place) return null;
 
-  const walkMin = walkingMinutes(place.distance ?? 0);
+  const distance =
+    place.walkingDistanceMeters ?? place.distance ?? 0;
+  const walkMin =
+    place.walkingDurationMinutes ?? walkingMinutes(place.distance ?? 0);
   const navUrl = navigationUrl(place.latitude, place.longitude);
   const address = shortAddress(place.formattedAddress);
 
@@ -99,7 +102,7 @@ export function MapModal({ place, open, onClose }: MapModalProps) {
                     <span className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-zinc-500">距離</span>
                   </div>
                   <p className="text-xl font-bold text-gray-900 dark:text-zinc-100">
-                    {place.distance ?? 0}
+                    {distance}
                     <span className="ml-0.5 text-sm">m</span>
                   </p>
                 </div>
