@@ -243,7 +243,9 @@ export async function GET(request: NextRequest) {
     });
     const walkingResults = await Promise.all(
       top3.map((place) => {
-        const url = `${DIRECTIONS_API}?${directionsParams}&origin=${latitude},${longitude}&destination=${place.latitude},${place.longitude}`;
+        // 目的地は place_id 指定で入口など案内地点に近づき、マップアプリの結果に揃える
+        const destination = `place_id:${place.id}`;
+        const url = `${DIRECTIONS_API}?${directionsParams}&origin=${latitude},${longitude}&destination=${encodeURIComponent(destination)}`;
         return fetch(url)
           .then(async (res) => {
             if (!res.ok) return null;
