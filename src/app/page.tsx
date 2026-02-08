@@ -72,11 +72,14 @@ export default function Home() {
     <div className="min-h-screen bg-[var(--bg-off-white)] dark:bg-zinc-950 pb-24">
       <header className="sticky top-0 z-10 border-b border-slate-100 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-zinc-900/80">
         <div className="mx-auto flex max-w-md items-center gap-2 px-5 py-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500 shadow-sm dark:bg-sky-600">
-            <svg className="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-            </svg>
-          </div>
+          <img
+            src="/icon.svg"
+            alt=""
+            className="h-8 w-8 rounded-lg shadow-sm"
+            width={32}
+            height={32}
+            aria-hidden
+          />
           <h1 className="text-xl font-bold tracking-tight text-slate-800 dark:text-slate-100">
             QT
           </h1>
