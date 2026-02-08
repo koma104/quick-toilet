@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Quick Toilet - 近くのトイレ",
-  description: "現在地から近いトイレを3件表示。タップで地図とナビを開けます。",
+  title: 'Quick Toilet - トイレがすぐ見つかる',
+  description: '近くのトイレを3件表示。タップで地図とナビを開けます。',
 };
 
 export default function RootLayout({
