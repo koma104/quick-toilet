@@ -12,9 +12,7 @@ export function shortAddress(formattedAddress: string | undefined): string {
     .trim();
 }
 
+/** ナビ開始リンク（Google Maps 優先、未設定時は Google） */
 export function navigationUrl(lat: number, lng: number): string {
-  if (typeof window !== "undefined" && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
-    return `https://maps.apple.com/?daddr=${lat},${lng}`;
-  }
   return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
 }
