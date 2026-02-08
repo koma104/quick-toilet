@@ -68,7 +68,7 @@ export function MapModal({ place, open, onClose }: MapModalProps) {
           </svg>
         </button>
 
-        <div className="relative flex flex-col md:flex-row">
+        <div className="relative flex min-h-0 flex-1 flex-col md:flex-row">
           <div className="relative z-0 h-[40vh] w-full shrink-0 md:h-auto md:w-3/5">
             <MapView
               latitude={place.latitude}
@@ -78,7 +78,7 @@ export function MapModal({ place, open, onClose }: MapModalProps) {
             />
           </div>
 
-          <div className="flex flex-1 flex-col">
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
             <div className="flex-grow p-6 md:p-10 md:pt-16">
               <h2 className="text-2xl font-extrabold leading-tight text-gray-900 dark:text-zinc-100 md:text-3xl">
                 {place.displayName}
