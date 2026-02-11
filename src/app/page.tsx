@@ -5,12 +5,15 @@ import type { Place } from "@/types/place";
 import { ToiletList } from "@/components/ToiletList";
 import { MapModal } from "@/components/MapModal";
 
+type UserPosition = { lat: number; lng: number };
+
 export default function Home() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [userPosition, setUserPosition] = useState<UserPosition | null>(null);
 
   const fetchNearby = useCallback(async (lat: number, lng: number) => {
     setLoading(true);
@@ -39,7 +42,10 @@ export default function Home() {
     }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        fetchNearby(pos.coords.latitude, pos.coords.longitude);
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        setUserPosition({ lat, lng });
+        fetchNearby(lat, lng);
       },
       () => {
         setError("現在地を取得できませんでした。位置情報の利用を許可してください。");
@@ -71,7 +77,10 @@ export default function Home() {
     }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        fetchNearby(pos.coords.latitude, pos.coords.longitude);
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        setUserPosition({ lat, lng });
+        fetchNearby(lat, lng);
       },
       () => {
         setError("現在地を取得できませんでした。位置情報の利用を許可してください。");
@@ -130,6 +139,7 @@ export default function Home() {
 
       <MapModal
         place={selectedPlace}
+        userPosition={userPosition}
         open={modalOpen}
         onClose={handleCloseModal}
       />

@@ -16,11 +16,12 @@ const MapView = dynamic(() => import("./MapView").then((m) => m.MapView), {
 
 type MapModalProps = {
   place: Place | null;
+  userPosition: { lat: number; lng: number } | null;
   open: boolean;
   onClose: () => void;
 };
 
-export function MapModal({ place, open, onClose }: MapModalProps) {
+export function MapModal({ place, userPosition, open, onClose }: MapModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -76,6 +77,8 @@ export function MapModal({ place, open, onClose }: MapModalProps) {
             <MapView
               latitude={place.latitude}
               longitude={place.longitude}
+              userLat={userPosition?.lat}
+              userLng={userPosition?.lng}
               title={place.displayName}
               className="h-full w-full"
             />
