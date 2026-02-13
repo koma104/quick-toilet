@@ -64,7 +64,7 @@ export function MapModal({ place, userPosition, open, onClose }: MapModalProps) 
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 z-[100] rounded-full border border-gray-100 bg-white/90 p-2 text-gray-500 shadow-lg transition-colors hover:bg-white dark:border-zinc-700 dark:bg-zinc-800/90 dark:text-zinc-400 dark:hover:bg-zinc-800"
+          className="absolute top-4 right-4 z-[100] rounded-full border border-gray-100 bg-white/90 p-2 text-gray-500 shadow-lg transition-colors hover:bg-white dark:border-gray-100 dark:bg-white/90 dark:text-gray-500 dark:hover:bg-white md:dark:border-zinc-700 md:dark:bg-zinc-800/90 md:dark:text-zinc-400 md:dark:hover:bg-zinc-800"
           aria-label="閉じる"
         >
           <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
